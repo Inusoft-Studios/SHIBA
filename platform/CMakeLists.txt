@@ -10,7 +10,11 @@ target_sources(shiba_platform PRIVATE
 )
 
 # Per-OS backend selection
-# TODO
+if(WIN32)
+    target_sources(shiba_platform PRIVATE
+            src/windows/win32_surface.cpp
+    )
+endif ()
 
 target_link_libraries(shiba_platform PUBLIC shiba::warns)
 shiba_enable_ipo(shiba_platform)
