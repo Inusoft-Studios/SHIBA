@@ -1,4 +1,4 @@
-#include <platform/error/result.hpp>
+#include <core/error/result.hpp>
 #include <platform/types.h>
 
 #include <cassert>
