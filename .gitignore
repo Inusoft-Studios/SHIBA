@@ -62,6 +62,7 @@
 .idea/vcs.xml
 .idea/git_toolbox_prj.xml
 .idea/misc.xml
+/.idea/inspectionProfiles
 
 # AWS User-specific
 .idea/**/aws.xml
@@ -397,7 +398,7 @@ csx/
 ecf/
 rcf/
 
-# Windows Store app package directories and files
+# Windows Store main package directories and files
 AppPackages/
 BundleArtifacts/
 Package.StoreAssociation.xml
