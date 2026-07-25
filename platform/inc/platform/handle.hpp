@@ -17,7 +17,6 @@ template<typename Tag> constexpr bool valid(const Handle<Tag>& h) { return h.id 
 template<typename Tag> constexpr bool operator==(Handle<Tag> lhs, Handle<Tag> rhs) { return lhs.id == rhs.id; }
 template<typename Tag> constexpr bool operator!=(Handle<Tag> lhs, Handle<Tag> rhs) { return !(lhs == rhs); }
 
-// TODO: create macro for SHIBA_INVALID_HANDLE
 #define SHIBA_INVALID_HANDLE(tag) (::shiba::Handle<tag>{0u})
 
 }  // namespace shiba
