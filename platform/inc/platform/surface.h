@@ -42,6 +42,7 @@ struct SurfaceEvent {
         struct { i32 mKey; }     keyUp;
         struct { i32 mButton; }  mouseButton;
         struct { i32 mX, mY; }   scroll;
+        struct { i32 mX, mY; }   mouseWheel;
         struct { i32 mX, mY; }   mouseEnter;
         struct { i32 mX, mY; }   mouseLeave;
         struct { bool bGained; } mFocus;
@@ -60,7 +61,7 @@ struct WindowDesc {
 using Surface      = Handle<struct SurfaceTag>;
 using NativeHandle = void*;     // HWND / ANativeWindow*, back-end specific
 
-Surface*     createSurface         (const WindowDesc& desc, const AllocationCallbacks* allocation);
+Surface*     createSurface         (const WindowDesc& desc, const AllocationCallbacks* alloc);
 void         destroySurface        (Surface surface);
 bool         surfacePollEvent      (Surface surface, SurfaceEvent* out);
 bool         surfaceShouldClose    (Surface surface);
