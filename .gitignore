@@ -60,6 +60,8 @@
 .idea/**/shelf
 .idea/editor.xml
 .idea/vcs.xml
+.idea/git_toolbox_prj.xml
+.idea/misc.xml
 
 # AWS User-specific
 .idea/**/aws.xml
