@@ -58,6 +58,8 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/editor.xml
+.idea/vcs.xml
 
 # AWS User-specific
 .idea/**/aws.xml
