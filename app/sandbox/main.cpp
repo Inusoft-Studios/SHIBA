@@ -1,55 +1,49 @@
-#include <core/error/result.hpp>
+#include <platform/allocator.h>
+#include <platform/surface.h>
 #include <platform/types.h>
 
-#include <cassert>
+#include <cstdio>   // printf
+#include <cstdlib>  // _aligned_malloc / _aligned_free
 
 namespace {
-enum class AppError : shiba::u8 {
-    Success,
-    Fail
-};
 
-using R = shiba::Result<shiba::u8, AppError>;
+// CRT-backed default allocator. pUser unused here.
+// NOTE: _aligned_malloc MUST pair with _aligned_free - plain free() is UB.
+void* stdAlloc(void*, const shiba::usize size, const shiba::usize align) {
+    return _aligned_malloc(size, align);
+}
+void stdFree (void*, void* ptr) {
+    _aligned_free(ptr);
+}
 
-R foo() { return shiba::makeOk(shiba::u8{1}); }
-R bar() { return shiba::makeErr(AppError::Fail); }
-
-void smokeTest() {
-    // --- Ok path ---
-    {
-        const R r = foo();
-        assert(shiba::isOk(r));
-        assert(!shiba::isErr(r));
-        assert(shiba::getValue(r) == 1);
-        assert(shiba::get<shiba::u8>(r) == 1);
+void handle(const shiba::SurfaceEvent& e) {
+    using E = shiba::SurfaceEventType;
+    switch (e.mType) {
+        case E::Resize:  printf("[Resize] %ux%u\n", e.extent.width, e.extent.height); break;
+        case E::KeyDown: printf("[KeyDown] vk=%d\n", e.keyDown.mKey);                 break;
+        case E::MouseButtonDown: printf("[MBDown] btn=%d\n", e.mouseButton.mButton);  break;
+        default: break;
     }
-
-    // --- Err path ---
-    {
-        const R r = bar();
-        assert(!shiba::isOk(r));
-        assert(shiba::isErr(r));
-        assert(shiba::getError(r) == AppError::Fail);
-        assert(shiba::getError(r) != AppError::Success);
-        assert(shiba::get<AppError>(r) == AppError::Fail);
-    }
-
-    // --- get() returns a reference into this object, not a copy ---
-    {
-        const R r = foo();
-        static_assert(std::is_same_v<decltype(shiba::getValue(r)), const shiba::u8&>);
-        static_assert(std::is_same_v<decltype(shiba::get<shiba::u8>(r)), const shiba::u8&>);
-        assert(&shiba::getValue(r) == &r.value);
-    }
-
-    // --- layout invariants the codebase relies on ---
-    static_assert(std::is_trivially_copyable_v<R>, "Result must stay memcpy-able");
-    static_assert(!std::is_default_constructible_v<R>, "Result should require Ok/Err");
 }
 
 }  // namespace
 
 int main(int, char**) {
-    smokeTest();
+    constexpr shiba::AllocationCallbacks alloc{ stdAlloc, stdFree, nullptr };
+
+    shiba::WindowDesc desc{};
+    desc.pTitle     = "SHIBA Sandbox";
+    desc.extent     = { 1280, 720 };
+    desc.bResizable = true;
+
+    const shiba::Surface window = shiba::createSurface(desc, &alloc);
+    if (!shiba::valid(window)) { printf("surface creation failed\n"); return -1; }
+
+    while (!shiba::surfaceShouldClose(window)) {
+        shiba::SurfaceEvent e{};
+        while (shiba::surfacePollEvent(window, &e)) handle(e);
+    }
+
+    shiba::destroySurface(window);
     return 0;
 }
