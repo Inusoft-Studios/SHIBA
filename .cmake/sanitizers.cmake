@@ -1,0 +1,17 @@
+# shiba_enable_sanitizers(<target>)
+# Adds ASan (+ UBSan on GCC/Clang) when -DSHIBA_ENABLE_SANITIZERS=ON
+function(shiba_enable_sanitizers target)
+    if (NOT SHIBA_ENABLE_SANITIZERS)
+        return()
+    endif ()
+
+    if (MSVC)
+        target_compile_definitions(${target} PRIVATE /fsanitize=address)
+        message(STATUS "ASan enabled for '${target}'")
+    elseif ()
+        set(_flags -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=all)
+        target_compile_options(${target} PRIVATE ${_flags})
+        target_link_options(${target}    PRIVATE -fsanitize=address,undefined)
+        message(STATUS "ASan + UBSan enabled for '${target}'")
+    endif ()
+endfunction()
