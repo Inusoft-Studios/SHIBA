@@ -2,8 +2,8 @@
 //                        Copyright Inusoft Studios
 // =============================================================================
 
-#ifndef SHIBA_PLATFORM_ERROR_RESULT_HPP_
-#define SHIBA_PLATFORM_ERROR_RESULT_HPP_
+#ifndef SHIBA_CORE_ERROR_RESULT_HPP_
+#define SHIBA_CORE_ERROR_RESULT_HPP_
 
 #include <type_traits>
 #include <cassert>  // replace with assert handler
@@ -51,4 +51,4 @@ inline const U& get(const Result<T, E>& r) {
 
 }  // namespace shiba
 
-#endif  // SHIBA_PLATFORM_ERROR_RESULT_HPP_
+#endif  // SHIBA_CORE_ERROR_RESULT_HPP_
