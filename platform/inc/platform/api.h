@@ -2,8 +2,8 @@
 //                        Copyright Inusoft Studios
 // =============================================================================
 
-#ifndef SHIBA_API_H
-#define SHIBA_API_H
+#ifndef SHIBA_PLATFORM_API_H_
+#define SHIBA_PLATFORM_API_H_
 
 #include "compiler.h"
 
@@ -16,4 +16,4 @@
     #define SHIBA_IMPORT __attribute__((visibility("default")))
 #endif
 
-#endif  // SHIBA_API_H
+#endif  // SHIBA_PLATFORM_API_H_
