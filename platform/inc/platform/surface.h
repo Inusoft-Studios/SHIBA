@@ -61,7 +61,7 @@ struct WindowDesc {
 using Surface      = Handle<struct SurfaceTag>;
 using NativeHandle = void*;     // HWND / ANativeWindow*, back-end specific
 
-Surface*     createSurface         (const WindowDesc& desc, const AllocationCallbacks* alloc);
+Surface      createSurface         (const WindowDesc& desc, const AllocationCallbacks* alloc);
 void         destroySurface        (Surface surface);
 bool         surfacePollEvent      (Surface surface, SurfaceEvent* out);
 bool         surfaceShouldClose    (Surface surface);
