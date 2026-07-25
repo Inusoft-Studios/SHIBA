@@ -2,8 +2,8 @@
 //                        Copyright Inusoft Studios
 // =============================================================================
 
-#ifndef SHIBA_PLATFORM_TYPEDEFS_H_
-#define SHIBA_PLATFORM_TYPEDEFS_H_
+#ifndef SHIBA_PLATFORM_COMPILER_H_
+#define SHIBA_PLATFORM_COMPILER_H_
 
 // === Compiler detection ===
 #if defined (__clang__)
@@ -68,4 +68,4 @@
     #define SHIBA_WARN_POP   SHIBA_PRAGMA(GCC diagnostic pop)
 #endif
 
-#endif // SHIBA_PLATFORM_TYPEDEFS_H_
+#endif // SHIBA_PLATFORM_COMPILER_H_
