@@ -173,7 +173,7 @@ void ensureClass() {
 }
 }  // namespace
 
-Surface createSurface(const WindowDesc& desc, const AllocationCallbacks* alloc) {
+Surface createSurface(const SurfaceDesc& desc, const AllocationCallbacks* alloc) {
     ensureClass();
 
     u32 slot = kMaxSurfaces;

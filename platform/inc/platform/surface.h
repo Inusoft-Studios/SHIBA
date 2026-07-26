@@ -49,8 +49,8 @@ struct SurfaceEvent {
     };
 };
 
-// Represents the description of a window for creation or configuration.
-struct WindowDesc {
+// Represents the description of a surface for creation or configuration.
+struct SurfaceDesc {
     const char* pTitle;
     Extent2D    extent;
     bool        bResizable;
@@ -61,7 +61,7 @@ struct WindowDesc {
 using Surface      = Handle<struct SurfaceTag>;
 using NativeHandle = void*;     // HWND / ANativeWindow*, back-end specific
 
-Surface      createSurface         (const WindowDesc& desc, const AllocationCallbacks* alloc);
+Surface      createSurface         (const SurfaceDesc& desc, const AllocationCallbacks* alloc);
 void         destroySurface        (Surface surface);
 bool         surfacePollEvent      (Surface surface, SurfaceEvent* out);
 bool         surfaceShouldClose    (Surface surface);

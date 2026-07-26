@@ -40,7 +40,7 @@ struct FrameClock {
 int main(int, char**) {
     constexpr shiba::AllocationCallbacks alloc{ stdAlloc, stdFree, nullptr };
 
-    shiba::WindowDesc desc{};
+    shiba::SurfaceDesc desc{};
     desc.pTitle     = "SHIBA Sandbox";
     desc.extent     = { 1280, 720 };
     desc.bResizable = true;
