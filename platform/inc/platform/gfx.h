@@ -40,6 +40,47 @@ enum class Format : u8 {
     D32F, D24S8
 };
 
+// --- Descriptors ---
+
+struct alignas(8) GfxInstanceDesc {
+    const char* pAppName;
+    Backend     backend;
+    bool        bValidation;
+    u8          _pad[2];
+    u32         appVersion;
+};
+static_assert(sizeof(GfxInstanceDesc) == 16 && "shiba: GfxInstanceDesc must be 16 bytes in size.");
+
+struct alignas(4) GfxDeviceDesc {
+    GfxInstance instance;
+    Surface     surface;         // device is chosen for presentability to this
+    u8          framesInFlight;  // 2-3
+    u8          _pad[7];
+};
+static_assert(sizeof(GfxDeviceDesc) == 16 && "shiba: GfxDeviceDesc must be 16 bytes in size.");
+
+struct alignas(4) GfxSwapchainDesc {
+    GfxDevice   device;
+    Surface     surface;
+    Extent2D    extent;
+    u32         imageCount;
+    Format      format;
+    PresentMode presentMode;
+    u8          _pad[2];
+};
+static_assert(sizeof(GfxSwapchainDesc) == 24 && "shiba: GfxSwapchainDesc must be 24 bytes in size.");
+
+struct alignas(8) GfxSwapchainCaps {
+    u32         minImages, maxImages;
+    Extent2D    minExtent, maxExtent, currentExtent;
+    Format      formats[8];
+    u32         formatCount;
+    PresentMode modes[4];
+    u32         modeCount;
+    u32         _pad[3];
+};
+static_assert(sizeof(GfxSwapchainCaps) == 64 && "shiba: GfxSwapchainCaps must be 64 bytes in size.");
+
 }  // namespace shiba
 
 #endif  // SHIBA_PLATFORM_GFX_H_
