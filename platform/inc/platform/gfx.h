@@ -101,9 +101,9 @@ Format       gfxSwapchainFormat(GfxSwapchain);
 u32          gfxSwapchainImageCount(GfxSwapchain);
 
 // Acquire a back buffer image from the swapchain.
-GfxBackBuffer gfxAcquire(GfxSwapchain, GfxBackBuffer* out);
+GfxResult gfxAcquire(GfxSwapchain, GfxBackBuffer* out);
 // Present a rendered back buffer image to the screen using the swapchain.
-void          gfxPresent(GfxSwapchain, GfxBackBuffer);
+GfxResult gfxPresent(GfxSwapchain, GfxBackBuffer);
 
 // --- Diagnostics ---
 Backend     gfxBackend   (GfxInstance);
