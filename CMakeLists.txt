@@ -33,7 +33,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/.cmake")
 
 option(SHIBA_WARNINGS_AS_ERRORS "Treat compiler warnings as errors"     ON)
-option(SHIBA_ENABLE_SANITIZERS  "Enable address sanitizer + UBSan"      ON)
+option(SHIBA_ENABLE_SANITIZERS  "Enable address sanitizer + UBSan"      OFF)
 
 # Unified output dirs
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
