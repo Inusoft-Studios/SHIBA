@@ -21,7 +21,7 @@ using GfxBackBuffer = Handle<struct GfxBackBufferTag>;
 
 // --- API Enums ---
 
-enum class Backend : u8 { OpenGL, Vulkan };  // TODO: fill more in along the way
+enum class Backend : u8 { Null, Vulkan, OpenGL };  // TODO: fill more in along the way
 
 enum class GfxResult : u8 {
     Ok,
