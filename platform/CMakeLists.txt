@@ -21,4 +21,15 @@ endif ()
 target_link_libraries(shiba_platform PUBLIC shiba::warns)
 shiba_enable_ipo(shiba_platform)
 
+# TODO: Setup per-backend module linking
+set(SHIBA_GFX_BACKEND "Vulkan" CACHE STRING "Graphics backend")
+set_property(CACHE SHIBA_GFX_BACKEND PROPERTY STRINGS Vulkan D3D12 OpenGL Null)
+
+if(SHIBA_GFX_BACKEND STREQUAL "Vulkan")
+    find_package(Vulkan 1.4.350 REQUIRED)
+    target_sources(shiba_platform PRIVATE src/vulkan/gfx_vk.cpp)
+    target_link_libraries(shiba_platform PRIVATE Vulkan::Vulkan)
+    target_compile_definitions(shiba_platform PRIVATE SHIBA_GFX_VULKAN=1)
+endif()
+
 set_target_properties(shiba_platform PROPERTIES FOLDER "engine")
