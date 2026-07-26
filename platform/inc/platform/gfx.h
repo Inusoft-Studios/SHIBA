@@ -86,15 +86,15 @@ GfxInstance gfxInstanceCreate (const GfxInstanceDesc&, const AllocationCallbacks
 void        gfxInstanceDestroy(GfxInstance);
 
 // --- Device lifetime ---
-GfxDevice gfxDeviceCreate (const GfxDeviceDesc&, const AllocationCallbacks*);
-void      gfxDeviceDestroy(GfxDevice);
-void      gfxWaitIdle     (GfxDevice);      // block until GPU is drained
+GfxDevice gfxDeviceCreate   (const GfxDeviceDesc&, const AllocationCallbacks*);
+void      gfxDeviceDestroy  (GfxDevice);
+void      gfxDeviceWaitIdle (GfxDevice);      // block until GPU is drained
 
 // --- Swapchain ---
-void         gfxQuerySwapchainCaps(GfxDevice, Surface, GfxSwapchainCaps* out);
-GfxSwapchain gfxCreateSwapchain   (const GfxSwapchainDesc&, const AllocationCallbacks*);
-void         gfxDestroySwapchain  (GfxSwapchain);
-void         gfxResizeSwapchain   (GfxSwapchain, Extent2D);    // recreate in place
+void         gfxSwapchainQueryCaps(GfxDevice, Surface, GfxSwapchainCaps* out);
+GfxSwapchain gfxSwapchainCreate   (const GfxSwapchainDesc&, const AllocationCallbacks*);
+void         gfxSwapchainDestroy  (GfxSwapchain);
+void         gfxSwapchainResize   (GfxSwapchain, Extent2D);    // recreate in place
 
 Extent2D     gfxSwapchainExtent(GfxSwapchain);
 Format       gfxSwapchainFormat(GfxSwapchain);
