@@ -7,12 +7,14 @@ target_include_directories(shiba_platform PUBLIC inc)
 # OS-agnostic sources
 target_sources(shiba_platform PRIVATE
         src/common.cpp
+        src/timer.cpp
 )
 
 # Per-OS backend selection
 if(WIN32)
     target_sources(shiba_platform PRIVATE
             src/windows/win32_surface.cpp
+            src/windows/win32_timer.cpp
     )
 endif ()
 
