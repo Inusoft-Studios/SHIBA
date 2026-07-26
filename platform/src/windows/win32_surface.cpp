@@ -11,7 +11,6 @@
 #include <windows.h>
 #include <windowsx.h>
 
-#include <cstdio>
 #include <new>                  // placement new
 
 namespace shiba {
@@ -168,7 +167,7 @@ void ensureClass() {
     wc.hInstance     = GetModuleHandle(nullptr);
     wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
     wc.lpszClassName = kClassName;
-    wc.hbrBackground = reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1));
+    wc.hbrBackground = reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1));  // TODO: replace this with RDI
     RegisterClassExW(&wc);
     gClassRegistered = true;
 }
@@ -237,9 +236,18 @@ bool surfacePollEvent(Surface surface, SurfaceEvent* out) {
     return pop(s, out);
 }
 
-bool         surfaceShouldClose    (Surface surface) { auto* s = resolve(surface); return s ? s->bShouldClose : true; }
-Extent2D     surfaceGetExtent      (Surface surface) { auto* s = resolve(surface); return s ? s->extent : Extent2D{0,0}; }
-NativeHandle surfaceGetNativeHandle(Surface surface) { auto* s = resolve(surface); return s ? s->hwnd : nullptr; }
+bool surfaceShouldClose(Surface surface) {
+    const auto* s = resolve(surface);
+    return s ? s->bShouldClose : true;
+}
+Extent2D surfaceGetExtent (Surface surface) {
+    const auto* s = resolve(surface);
+    return s ? s->extent : Extent2D{0,0};
+}
+NativeHandle surfaceGetNativeHandle(Surface surface) {
+    const auto* s = resolve(surface);
+    return s ? s->hwnd : nullptr;
+}
 
 void surfaceSetTitle(Surface surface, const char* title) {
     const SurfaceData* s = resolve(surface);
