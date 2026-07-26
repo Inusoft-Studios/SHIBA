@@ -58,14 +58,24 @@
 #endif
 
 // === Diagnostic push/pop ===
+// compiler.h
 #if SHIBA_COMPILER_MSVC
-    #define SHIBA_PRAGMA(x)  __pragma(x)
-    #define SHIBA_WARN_PUSH  SHIBA_PRAGMA(warning(push))
-    #define SHIBA_WARN_POP   SHIBA_PRAGMA(warning(pop))
-#else
-    #define SHIBA_PRAGMA(x)  _Pragma(#x)
-    #define SHIBA_WARN_PUSH  SHIBA_PRAGMA(GCC diagnostic push)
-    #define SHIBA_WARN_POP   SHIBA_PRAGMA(GCC diagnostic pop)
+    #define SHIBA_PRAGMA(x)   __pragma(x)
+    #define SHIBA_WARN_PUSH_DISABLE_ALL()  SHIBA_PRAGMA(warning(push, 0))
+    #define SHIBA_WARN_POP()               SHIBA_PRAGMA(warning(pop))
+#elif SHIBA_COMPILER_CLANG
+    #define SHIBA_PRAGMA(x)   _Pragma(#x)
+    #define SHIBA_WARN_PUSH_DISABLE_ALL()             \
+        SHIBA_PRAGMA(clang diagnostic push)           \
+        SHIBA_PRAGMA(clang diagnostic ignored "-Weverything")
+    #define SHIBA_WARN_POP()  SHIBA_PRAGMA(clang diagnostic pop)
+#elif SHIBA_COMPILER_GCC
+    #define SHIBA_PRAGMA(x)   _Pragma(#x)
+    #define SHIBA_WARN_PUSH_DISABLE_ALL()             \
+        SHIBA_PRAGMA(GCC diagnostic push)             \
+        SHIBA_PRAGMA(GCC diagnostic ignored "-Wall")  \
+        SHIBA_PRAGMA(GCC diagnostic ignored "-Wextra")
+    #define SHIBA_WARN_POP()  SHIBA_PRAGMA(GCC diagnostic pop)
 #endif
 
 #endif // SHIBA_PLATFORM_COMPILER_H_
