@@ -53,6 +53,9 @@ include(sanitizers)
 # IPO
 include(ipo)
 
+# === Third-Party layers ===
+add_subdirectory(thirdparty)
+
 # === Layers ===
 add_subdirectory(platform)
 add_subdirectory(core)

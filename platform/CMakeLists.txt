@@ -27,8 +27,11 @@ set_property(CACHE SHIBA_GFX_BACKEND PROPERTY STRINGS Vulkan D3D12 OpenGL Null)
 
 if(SHIBA_GFX_BACKEND STREQUAL "Vulkan")
     find_package(Vulkan 1.4.350 REQUIRED)
-    target_sources(shiba_platform PRIVATE src/vulkan/gfx_vk.cpp)
-    target_link_libraries(shiba_platform PRIVATE Vulkan::Vulkan)
+    target_sources(shiba_platform PRIVATE
+            src/vulkan/gfx_vk.cpp
+            src/vulkan/vk_mem_alloc.cpp
+    )
+    target_link_libraries(shiba_platform PRIVATE shiba::vma Vulkan::Vulkan)
     target_compile_definitions(shiba_platform PRIVATE SHIBA_GFX_VULKAN=1)
 endif()
 
