@@ -81,6 +81,34 @@ struct alignas(8) GfxSwapchainCaps {
 };
 static_assert(sizeof(GfxSwapchainCaps) == 64 && "shiba: GfxSwapchainCaps must be 64 bytes in size.");
 
+// --- Instance lifetime ---
+GfxInstance gfxInstanceCreate (const GfxInstanceDesc&, const AllocationCallbacks*);
+void        gfxInstanceDestroy(GfxInstance);
+
+// --- Device lifetime ---
+GfxDevice gfxDeviceCreate (const GfxDeviceDesc&, const AllocationCallbacks*);
+void      gfxDeviceDestroy(GfxDevice);
+void      gfxWaitIdle     (GfxDevice);      // block until GPU is drained
+
+// --- Swapchain ---
+void         gfxQuerySwapchainCaps(GfxDevice, Surface, GfxSwapchainCaps* out);
+GfxSwapchain gfxCreateSwapchain   (const GfxSwapchainDesc&, const AllocationCallbacks*);
+void         gfxDestroySwapchain  (GfxSwapchain);
+void         gfxResizeSwapchain   (GfxSwapchain, Extent2D);    // recreate in place
+
+Extent2D     gfxSwapchainExtent(GfxSwapchain);
+Format       gfxSwapchainFormat(GfxSwapchain);
+u32          gfxSwapchainImageCount(GfxSwapchain);
+
+// Acquire a back buffer image from the swapchain.
+GfxBackBuffer gfxAcquire(GfxSwapchain, GfxBackBuffer* out);
+// Present a rendered back buffer image to the screen using the swapchain.
+void          gfxPresent(GfxSwapchain, GfxBackBuffer);
+
+// --- Diagnostics ---
+Backend     gfxBackend   (GfxInstance);
+const char* gfxDeviceName(GfxDevice);   // e.g. "NVIDIA RTX 30x/40x/50x"
+
 }  // namespace shiba
 
 #endif  // SHIBA_PLATFORM_GFX_H_
