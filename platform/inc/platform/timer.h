@@ -9,33 +9,23 @@
 
 namespace shiba {
 
-struct Clock {
-    u64 frequency;  // ticks/sec, invariant for the process
-    u64 epoch;      // reference tick captured at boot
-};
-
-struct Timer {
-    u64 start;
-};
-
-extern "C" {
-void clockInit(void);
-
-Timer timerStart(const Clock* c);
-void  timerReset(Timer* t, const Clock* c);
-
-u64   timerElapsedNS (const Timer* t, const Clock* c);
-f64   timerElapsedSec(const Timer* t, const Clock* c);
-}
-
-u64 platformTicks(void);
-u64 platformFrequency(void);
+struct Clock { u64 frequency; u64 epoch; };
+struct Timer { u64 start; };
 
 inline u64 ticksToNS(const u64 ticks, const u64 freq) {
     return (ticks / freq) * 1'000'000'000ull
          + (ticks % freq) * 1'000'000'000ull / freq;
 }
-
+u64 platformTicks(void);
+u64 platformFrequency(void);
 }  // namespace shiba
+
+extern "C" {
+shiba::Clock shibaClockInit(void);
+shiba::Timer shibaTimerStart(const shiba::Clock* c);
+void         shibaTimerReset(shiba::Timer* t, const shiba::Clock* c);
+shiba::u64   shibaTimerElapsedNS (const shiba::Timer* t, const shiba::Clock* c);
+shiba::f64   shibaTimerElapsedSec(const shiba::Timer* t, const shiba::Clock* c);
+}
 
 #endif  // SHIBA_PLATFORM_TIMER_H_
