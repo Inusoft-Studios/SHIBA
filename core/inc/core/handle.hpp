@@ -2,10 +2,10 @@
 //                        Copyright Inusoft Studios
 // =============================================================================
 
-#ifndef SHIBA_PLATFORM_HANDLE_HPP_
-#define SHIBA_PLATFORM_HANDLE_HPP_
+#ifndef SHIBA_CORE_HANDLE_HPP_
+#define SHIBA_CORE_HANDLE_HPP_
 
-#include "types.h"
+#include "platform/types.h"
 
 namespace shiba {
 
@@ -21,4 +21,4 @@ template<typename Tag> constexpr bool operator!=(Handle<Tag> lhs, Handle<Tag> rh
 
 }  // namespace shiba
 
-#endif  // SHIBA_PLATFORM_HANDLE_HPP_
+#endif  // SHIBA_CORE_HANDLE_HPP_

@@ -5,7 +5,6 @@
 #ifndef SHIBA_PLATFORM_SURFACE_H_
 #define SHIBA_PLATFORM_SURFACE_H_
 
-#include "handle.hpp"
 #include "types.h"
 
 namespace shiba {
@@ -58,7 +57,7 @@ struct SurfaceDesc {
 };
 
 // The OS surface to draw on, this could be a window on desktop or another surface on console.
-using Surface      = Handle<struct SurfaceTag>;
+using Surface      = u32;
 using NativeHandle = void*;     // HWND / ANativeWindow*, back-end specific
 
 Surface      surfaceCreate         (const SurfaceDesc& desc, const AllocationCallbacks* alloc);
