@@ -2,9 +2,9 @@
 //                        Copyright Inusoft Studios
 // =============================================================================
 
-#include "platform/surface.h"
-#include "../surface_native.h"
 #include "platform/allocator.h"  // AllocationCallbacks definition
+#include "platform/surface.h"
+#include "surface_native.h"
 
 #ifndef WIN32_LEAN_AND_MEAN
     #define WIN32_LEAN_AND_MEAN

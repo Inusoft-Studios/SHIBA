@@ -2,7 +2,10 @@ add_library(shiba_platform STATIC)
 add_library(shiba::platform ALIAS shiba_platform)
 
 # Platform interface
-target_include_directories(shiba_platform PUBLIC inc)
+target_include_directories(shiba_platform
+        PUBLIC inc
+        PRIVATE internal
+)
 
 # OS-agnostic sources
 target_sources(shiba_platform PRIVATE
