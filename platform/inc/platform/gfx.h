@@ -33,8 +33,8 @@ GfxAdapter  gfxDefaultAdapter   ();                             // picks the OS-
 const char* gfxAdapterName      (GfxAdapter);
 
 // --- Device ---
-GfxDevice gfxCreateDevice (GfxAdapter, const AllocationCallbacks*);
-void      gfxDestroyDevice(GfxDevice);
+GfxDevice gfxDeviceCreate (GfxAdapter, const AllocationCallbacks*);
+void      gfxDeviceDestroy(GfxDevice);
 void      gfxDeviceWait   (GfxDevice);                          // block until the device is idle
 
 // --- Queues ---
