@@ -46,7 +46,7 @@ int main(int, char**) {
     desc.bResizable = true;
 
     const shiba::Surface window = shiba::surfaceCreate(desc, &alloc);
-    if (!shiba::valid(window)) { printf("surface creation failed\n"); return -1; }
+    if (!shiba::surfaceValid(window)) { printf("surface creation failed\n"); return -1; }
 
     constexpr shiba::f64 kFixedDT = 1.0 / 60.0; // 60Hz sim
     constexpr shiba::f64 kMaxDt   = 0.25;       // clamp: anti "spiral of death"

@@ -65,6 +65,7 @@ bool     surfacePollEvent  (Surface surface, SurfaceEvent* out);
 bool     surfaceShouldClose(Surface surface);
 Extent2D surfaceGetExtent  (Surface surface);
 void     surfaceSetTitle   (Surface surface, const char* title);
+bool     surfaceValid      (Surface surface);
 
 }  // namespace shiba
 

@@ -3,6 +3,7 @@
 // =============================================================================
 
 #include "platform/surface.h"
+#include "../surface_native.h"
 #include "platform/allocator.h"  // AllocationCallbacks definition
 
 #ifndef WIN32_LEAN_AND_MEAN
@@ -60,7 +61,7 @@ bool pop(SurfaceData* s, SurfaceEvent* out) {
 SurfaceEvent ev(const SurfaceEventType t) { SurfaceEvent e{}; e.mType = t; return e; }
 
 // --- window class ---
-const wchar_t* kClassName = L"ShibaSurfaceClass";
+auto kClassName = L"ShibaSurfaceClass";
 bool gClassRegistered = false;
 
 int toWide(const char* utf8, wchar_t* out) {
@@ -129,13 +130,13 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 
         case WM_LBUTTONDOWN: case WM_RBUTTONDOWN: case WM_MBUTTONDOWN: {
             SurfaceEvent e = ev(SurfaceEventType::MouseButtonDown);
-            e.mouseButton.mButton = (msg == WM_LBUTTONDOWN) ? 0 : (msg == WM_RBUTTONDOWN) ? 1 : 2;
+            e.mouseButton.mButton = msg == WM_LBUTTONDOWN ? 0 : msg == WM_RBUTTONDOWN ? 1 : 2;
             push(s, e);
             return 0;
         }
         case WM_LBUTTONUP: case WM_RBUTTONUP: case WM_MBUTTONUP: {
             SurfaceEvent e = ev(SurfaceEventType::MouseButtonUp);
-            e.mouseButton.mButton = (msg==WM_LBUTTONUP)?0:(msg==WM_RBUTTONUP)?1:2;
+            e.mouseButton.mButton = msg == WM_LBUTTONUP ? 0 : msg == WM_RBUTTONUP ? 1 : 2;
             push(s, e); return 0;
         }
         case WM_MOUSEWHEEL: {
@@ -150,7 +151,7 @@ LRESULT CALLBACK wndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
         }
         case WM_SETFOCUS: case WM_KILLFOCUS: {
             SurfaceEvent e = ev(SurfaceEventType::Focus);
-            e.mFocus.bGained = (msg == WM_SETFOCUS);
+            e.mFocus.bGained = msg == WM_SETFOCUS;
             push(s, e); return 0;
         }
 
@@ -167,7 +168,7 @@ void ensureClass() {
     wc.hInstance     = GetModuleHandle(nullptr);
     wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
     wc.lpszClassName = kClassName;
-    wc.hbrBackground = reinterpret_cast<HBRUSH>((COLOR_WINDOW + 1));  // TODO: replace this with RDI
+    wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);  // TODO: replace this with RDI
     RegisterClassExW(&wc);
     gClassRegistered = true;
 }
@@ -178,11 +179,11 @@ Surface surfaceCreate(const SurfaceDesc& desc, const AllocationCallbacks* alloc)
 
     u32 slot = kMaxSurfaces;
     for (u32 i = 0; i < kMaxSurfaces; ++i) if (!gTable[i]) { slot = i; break; }
-    if (slot == kMaxSurfaces) return SHIBA_INVALID_HANDLE(SurfaceTag);
+    if (slot == kMaxSurfaces) return Surface{};
     if (gGen[slot] == 0) gGen[slot] = 1;
 
     void* mem = alloc->pFnAlloc(alloc->pUser, sizeof(SurfaceData), alignof(SurfaceData));
-    if (!mem) return SHIBA_INVALID_HANDLE(SurfaceTag);
+    if (!mem) return Surface{};
     auto* s   = new (mem) SurfaceData{};
     s->alloc  = *alloc;
     s->extent = desc.extent;
@@ -205,13 +206,13 @@ Surface surfaceCreate(const SurfaceDesc& desc, const AllocationCallbacks* alloc)
         gTable[slot] = nullptr;
         s->~SurfaceData();
         alloc->pFnFree(alloc->pUser, mem);
-        return SHIBA_INVALID_HANDLE(SurfaceTag);
+        return Surface{};
     }
     ShowWindow(s->hwnd, SW_SHOW);
     return pack(slot, gGen[slot]);
 }
 
-void surfaceDestroy(Surface surface) {
+void surfaceDestroy(const Surface surface) {
     SurfaceData* s = resolve(surface);
     if (!s) return;
     const u32 slot = idxOf(surface);
@@ -224,7 +225,7 @@ void surfaceDestroy(Surface surface) {
     if (++gGen[slot] == 0) gGen[slot] = 1;
 }
 
-bool surfacePollEvent(Surface surface, SurfaceEvent* out) {
+bool surfacePollEvent(const Surface surface, SurfaceEvent* out) {
     SurfaceData* s = resolve(surface);
     if (!s) return false;
     MSG msg;
@@ -236,25 +237,26 @@ bool surfacePollEvent(Surface surface, SurfaceEvent* out) {
     return pop(s, out);
 }
 
-bool surfaceShouldClose(Surface surface) {
+bool surfaceShouldClose(const Surface surface) {
     const auto* s = resolve(surface);
     return s ? s->bShouldClose : true;
 }
-Extent2D surfaceGetExtent (Surface surface) {
+Extent2D surfaceGetExtent (const Surface surface) {
     const auto* s = resolve(surface);
     return s ? s->extent : Extent2D{0,0};
 }
-NativeHandle surfaceGetNativeHandle(Surface surface) {
+NativeHandle surfaceGetNativeHandle(const Surface surface) {
     const auto* s = resolve(surface);
     return s ? s->hwnd : nullptr;
 }
 
-void surfaceSetTitle(Surface surface, const char* title) {
+void surfaceSetTitle(const Surface surface, const char* title) {
     const SurfaceData* s = resolve(surface);
     if (!s) return;
     wchar_t w[256];
     toWide(title, w);
     SetWindowTextW(s->hwnd, w);
 }
+bool surfaceValid(const Surface surface) { return resolve(surface) != nullptr; }
 
 }  // namespace shiba
