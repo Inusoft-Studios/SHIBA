@@ -57,16 +57,14 @@ struct SurfaceDesc {
 };
 
 // The OS surface to draw on, this could be a window on desktop or another surface on console.
-using Surface      = u32;
-using NativeHandle = void*;     // HWND / ANativeWindow*, back-end specific
+struct Surface { u32 id; };
 
-Surface      surfaceCreate         (const SurfaceDesc& desc, const AllocationCallbacks* alloc);
-void         surfaceDestroy        (Surface surface);
-bool         surfacePollEvent      (Surface surface, SurfaceEvent* out);
-bool         surfaceShouldClose    (Surface surface);
-Extent2D     surfaceGetExtent      (Surface surface);
-NativeHandle surfaceGetNativeHandle(Surface surface);
-void         surfaceSetTitle       (Surface surface, const char* title);
+Surface  surfaceCreate     (const SurfaceDesc& desc, const AllocationCallbacks* alloc);
+void     surfaceDestroy    (Surface surface);
+bool     surfacePollEvent  (Surface surface, SurfaceEvent* out);
+bool     surfaceShouldClose(Surface surface);
+Extent2D surfaceGetExtent  (Surface surface);
+void     surfaceSetTitle   (Surface surface, const char* title);
 
 }  // namespace shiba
 
