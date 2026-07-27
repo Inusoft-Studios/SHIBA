@@ -16,7 +16,12 @@ if(WIN32)
     )
 endif ()
 
-target_link_libraries(shiba_llr PUBLIC shiba::warns)
+target_link_libraries(shiba_llr PUBLIC
+        shiba::warns
+        shiba::platform
+        shiba::core
+        # TODO: shiba::resources
+)
 shiba_enable_ipo(shiba_llr)
 
 # TODO: Setup per-backend module linking
