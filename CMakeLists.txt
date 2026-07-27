@@ -60,6 +60,7 @@ add_subdirectory(thirdparty)
 add_subdirectory(platform)
 add_subdirectory(core)
 add_subdirectory(resources)
+add_subdirectory(llr)
 
 # === Apps ===
 add_subdirectory(app/sandbox)
