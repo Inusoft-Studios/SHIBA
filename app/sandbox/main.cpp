@@ -45,7 +45,7 @@ int main(int, char**) {
     desc.extent     = { 1280, 720 };
     desc.bResizable = true;
 
-    const shiba::Surface window = shiba::createSurface(desc, &alloc);
+    const shiba::Surface window = shiba::surfaceCreate(desc, &alloc);
     if (!shiba::valid(window)) { printf("surface creation failed\n"); return -1; }
 
     constexpr shiba::f64 kFixedDT = 1.0 / 60.0; // 60Hz sim
@@ -83,6 +83,6 @@ int main(int, char**) {
         fc.alpha = fc.accum / kFixedDT;
     }
 
-    shiba::destroySurface(window);
+    shiba::surfaceDestroy(window);
     return 0;
 }

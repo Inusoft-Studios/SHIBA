@@ -173,7 +173,7 @@ void ensureClass() {
 }
 }  // namespace
 
-Surface createSurface(const SurfaceDesc& desc, const AllocationCallbacks* alloc) {
+Surface surfaceCreate(const SurfaceDesc& desc, const AllocationCallbacks* alloc) {
     ensureClass();
 
     u32 slot = kMaxSurfaces;
@@ -211,7 +211,7 @@ Surface createSurface(const SurfaceDesc& desc, const AllocationCallbacks* alloc)
     return pack(slot, gGen[slot]);
 }
 
-void destroySurface(Surface surface) {
+void surfaceDestroy(Surface surface) {
     SurfaceData* s = resolve(surface);
     if (!s) return;
     const u32 slot = idxOf(surface);
