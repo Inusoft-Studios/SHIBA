@@ -1,3 +1,7 @@
+// =============================================================================
+//                        Copyright Inusoft Studios
+// =============================================================================
+
 #ifndef SHIBA_PLATFORM_GFX_BACKEND_HPP_
 #define SHIBA_PLATFORM_GFX_BACKEND_HPP_
 
