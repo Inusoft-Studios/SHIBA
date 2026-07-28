@@ -16,7 +16,7 @@ namespace {
 void* stdAlloc(void*, const shiba::usize size, const shiba::usize align) {
     return _aligned_malloc(size, align);
 }
-void stdFree (void*, void* ptr) {
+void stdFree (void*, void* ptr, shiba::usize, shiba::usize) {
     _aligned_free(ptr);
 }
 

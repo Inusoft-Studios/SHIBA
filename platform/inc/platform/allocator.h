@@ -9,7 +9,7 @@
 namespace shiba {
 struct AllocationCallbacks {
     void* (*pFnAlloc)(void* user, usize size, usize align);
-    void  (*pFnFree)(void* user, void* ptr);
+    void  (*pFnFree)(void* user, void* ptr, usize size, usize align);
     void* pUser;
 };
 }  // namespace shiba
