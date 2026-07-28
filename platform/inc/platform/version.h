@@ -19,9 +19,10 @@
 
 namespace shiba {
 const char* versionStr();
-u32         versionMajor();
-u32         versionMinor();
-u32         versionPatch();
+
+inline u32 versionMajor() { return SHIBA_VERSION_MAJOR; }
+inline u32 versionMinor() { return SHIBA_VERSION_MINOR; }
+inline u32 versionPatch() { return SHIBA_VERSION_PATCH; }
 }  // namespace shiba
 
 #endif  // SHIBA_PLATFORM_VERSION_H_
