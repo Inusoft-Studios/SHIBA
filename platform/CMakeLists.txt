@@ -10,6 +10,7 @@ target_include_directories(shiba_platform
 # OS-agnostic sources
 target_sources(shiba_platform PRIVATE
         src/common.cpp
+        src/gfx.cpp
         src/timer.cpp
 )
 
@@ -36,6 +37,7 @@ if(SHIBA_GFX_BACKEND STREQUAL "Vulkan")
     )
     target_link_libraries(shiba_platform PRIVATE shiba::vma Vulkan::Vulkan)
     target_compile_definitions(shiba_platform PRIVATE SHIBA_GFX_VULKAN=1)
+    message(STATUS "shiba: selected rendering api = vulkan")
 endif()
 
 set_target_properties(shiba_platform PROPERTIES FOLDER "engine")
