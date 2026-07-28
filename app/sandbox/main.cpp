@@ -1,10 +1,12 @@
 #include <platform/allocator.h>
+#include <platform/gfx.h>
 #include <platform/surface.h>
 #include <platform/timer.h>
 #include <platform/types.h>
 
 #include <cstdio>   // printf
 #include <cstdlib>  // _aligned_malloc / _aligned_free
+
 
 namespace {
 
@@ -45,6 +47,11 @@ int main(int, char**) {
     desc.extent     = { 1280, 720 };
     desc.bResizable = true;
 
+    if (!shiba::gfxInit(shiba::GfxApi::Vulkan, true, &alloc)) {
+        printf("gfx init failed\n");
+        return -1;
+    }
+
     const shiba::Surface window = shiba::surfaceCreate(desc, &alloc);
     if (!shiba::surfaceValid(window)) { printf("surface creation failed\n"); return -1; }
 
@@ -83,6 +90,7 @@ int main(int, char**) {
         fc.alpha = fc.accum / kFixedDT;
     }
 
+    shiba::gfxShutdown();
     shiba::surfaceDestroy(window);
     return 0;
 }
