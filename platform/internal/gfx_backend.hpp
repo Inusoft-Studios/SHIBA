@@ -6,6 +6,10 @@
 namespace shiba {
 
 struct GfxBackendApi {
+    // --- Lifetime ---
+    bool (*init)(bool bValidation, const AllocationCallbacks*);
+    void (*shutdown)();
+
     // --- Adapters ---
     decltype(&gfxEnumerateAdapters) enumerateAdapters;
     decltype(&gfxDefaultAdapter)    defaultAdapter;
