@@ -97,6 +97,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCb(
     return VK_FALSE;
 }
 
+// --- Lifecycle ---
 bool vkInit(const bool bValidation, const AllocationCallbacks* alloc) {
     if (gInstance != VK_NULL_HANDLE) return true;
     gAlloc      = alloc ? *alloc : AllocationCallbacks{};
@@ -173,29 +174,130 @@ void vkShutdown() {
     gValidation = false;
 }
 
-u32 vkEnumerateAdapters(GfxAdapter* pOut, u32 cap) {
-    (void)pOut; (void)cap;
-    return 0;
+// --- Enumerate ---
+u32 vkEnumerateAdapters(GfxAdapter* pOut, const u32 cap) {
+    const u32 n = gPhysCount < cap ? gPhysCount : cap;
+    for (u32 i = 0; i < n; ++i) pOut[i] = GfxAdapter{ i + 1 };
+    return gPhysCount;  // report full count so caller can size a buffer
 }
 
 GfxAdapter vkDefaultAdapter() {
-    return {};
+    if (gPhysCount == 0) return GfxAdapter{};
+
+    // TODO: properly score GPU
+    u32 best = 0;
+    for (u32 i = 1; i < gPhysCount; ++i) {
+        VkPhysicalDeviceProperties p{};
+        vkGetPhysicalDeviceProperties(gPhys[i], &p);
+        if (p.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+            best = i;
+            break;
+        }
+    }
+    return GfxAdapter{ best + 1 };
 }
 
-const char* vkAdapterName(GfxAdapter) {
-    return "";
+const char* vkAdapterName(const GfxAdapter a) {
+    const u32 i = a.id - 1;
+    return a.id == 0 || i >= gPhysCount ? "" : gPhysName[i];
 }
 
-GfxDevice vkDeviceCreate(GfxAdapter, const AllocationCallbacks*) {
-    return {};
+// -- Device ---
+GfxDevice vkDeviceCreate(const GfxAdapter adapter, const AllocationCallbacks* alloc) {
+    (void)alloc;
+    const u32 ai = adapter.id - 1;
+    if (adapter.id == 0 || ai >= gPhysCount) return GfxDevice{};
+    VkPhysicalDevice phys = gPhys[ai];
+
+    u32 slot = kMaxDevices;
+    for (u32 i = 0; i < kMaxDevices; ++i) {
+        if (gDev[i].dev == VK_NULL_HANDLE) { slot = i; break; }
+    }
+    if (slot == kMaxDevices) return GfxDevice{};
+    if (gDevGen[slot] == 0) gDevGen[slot] = 1;
+
+    // Queue family selection: graphics, then prefer async compute and a dedicated transfer queue,
+    // falling back to the graphics family.
+    u32 qCount = 0;
+    vkGetPhysicalDeviceQueueFamilyProperties(phys, &qCount, nullptr);
+    VkQueueFamilyProperties qp[32];
+    if (qCount > 32) qCount = 32;
+    vkGetPhysicalDeviceQueueFamilyProperties(phys, &qCount, qp);
+
+    u32 gfxF = UINT32_MAX, compF = UINT32_MAX, copyF = UINT32_MAX;
+    for (u32 i = 0; i < qCount; ++i)
+        if ((qp[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) && gfxF == UINT32_MAX) gfxF = i;
+    for (u32 i = 0; i < qCount; ++i)
+        if ((qp[i].queueFlags & VK_QUEUE_COMPUTE_BIT) && !(qp[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)) { compF = i; break; }
+    if (compF == UINT32_MAX)
+        for (u32 i = 0; i < qCount; ++i) if (qp[i].queueFlags & VK_QUEUE_COMPUTE_BIT) { compF = i; break; }
+    for (u32 i = 0; i < qCount; ++i)
+        if ((qp[i].queueFlags & VK_QUEUE_TRANSFER_BIT) &&
+            !(qp[i].queueFlags & (VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT))) { copyF = i; break; }
+    if (copyF == UINT32_MAX)
+        for (u32 i = 0; i < qCount; ++i) if (qp[i].queueFlags & VK_QUEUE_TRANSFER_BIT) { copyF = i; break; }
+
+    if (gfxF == UINT32_MAX) return GfxDevice{};     // no graphics-capable family
+    if (compF == UINT32_MAX) compF = gfxF;
+    if (copyF == UINT32_MAX) copyF = gfxF;
+
+    constexpr float prio = 1.0f;
+    const u32 fams[3] = { gfxF, compF, copyF };
+    VkDeviceQueueCreateInfo qci[3]{};
+    u32 qn = 0;
+    for (const u32 fam : fams) {
+        bool seen = false;
+        for (u32 j = 0; j < qn; ++j) if (qci[j].queueFamilyIndex == fam) seen = true;
+        if (seen) continue;
+        qci[qn].sType              = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        qci[qn].queueFamilyIndex   = fam;
+        qci[qn].queueCount         = 1;
+        qci[qn].pQueuePriorities   = &prio;
+        ++qn;
+    }
+
+    // Swapchain is a device extension chosen at creation. The GDI above builds swapchains on this
+    // device, so the wrapper must enable it here.
+    const char* devExts[1] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+    VkDeviceCreateInfo dci{};
+    dci.sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+    dci.queueCreateInfoCount    = qn;
+    dci.pQueueCreateInfos       = qci;
+    dci.enabledExtensionCount   = 1;
+    dci.ppEnabledExtensionNames = devExts;
+
+    VkDevice dev = VK_NULL_HANDLE;
+    if (vkCreateDevice(phys, &dci, nullptr, &dev) != VK_SUCCESS) return GfxDevice{};
+
+    DeviceData& d = gDev[slot];
+    d.phys = phys;
+    d.dev  = dev;
+    d.family[qk(GfxQueueKind::Graphics)] = gfxF;
+    d.family[qk(GfxQueueKind::Compute)]  = compF;
+    d.family[qk(GfxQueueKind::Copy)]     = copyF;
+
+    VmaAllocatorCreateInfo aci{};
+    aci.instance         = gInstance;
+    aci.physicalDevice   = phys;
+    aci.device           = dev;
+    aci.vulkanApiVersion = VK_API_VERSION_1_3;
+    vmaCreateAllocator(&aci, &d.vma);
+
+    return packH<GfxDevice>(slot, gDevGen[slot]);
 }
 
-void vkDeviceDestroy(GfxDevice) {
-
+void vkDeviceDestroy(const GfxDevice device) {
+    DeviceData* d = resolveDevice(device);
+    if (!d) return;
+    const u32 slot = idxOf(device);
+    if (d->vma) vmaDestroyAllocator(d->vma);
+    vkDestroyDevice(d->dev, nullptr);
+    *d = DeviceData{};  // clears dev to VK_NULL_HANDLE, freeing the slot
+    if (++gDevGen[slot] == 0) gDevGen[slot] = 1;
 }
 
-void vkDeviceWait(GfxDevice) {
-
+void vkDeviceWait(const GfxDevice device) {
+    if (const DeviceData* d = resolveDevice(device)) vkDeviceWaitIdle(d->dev);
 }
 
 GfxQueue vkDeviceQueue(GfxDevice, GfxQueueKind) {
