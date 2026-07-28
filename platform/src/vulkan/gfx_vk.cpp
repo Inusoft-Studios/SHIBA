@@ -12,6 +12,7 @@
     #define VK_USE_PLATFORM_WIN32_KHR
 #endif
 #include <vulkan/vulkan.h>
+#include <vk_mem_alloc.h>
 
 #include <cstdio>  // fprintf (validation output)
 
@@ -40,6 +41,47 @@ u32              gPhysCount = 0;
 template<class H> H packH(const u32 i, const u16 g) { return H{ (static_cast<u32>(g) << 16) | i }; }
 template<class H> u32 idxOf(const H h) { return h.id & 0xFFFF; }
 template<class H> u16 genOf(const H h) { return static_cast<u16>(h.id >> 16); }
+
+u8 qk(const GfxQueueKind k) { return static_cast<u8>(k); }
+
+// --- device pool ---
+struct DeviceData {
+    VkPhysicalDevice phys;
+    VkDevice         dev;
+    VmaAllocator     vma;
+    u32              family[3]; // indexed by GfxQueueKind
+    VkQueue          queue [3];
+};
+DeviceData gDev   [kMaxDevices] = {};
+u16        gDevGen[kMaxDevices] = {};
+
+DeviceData* resolveDevice(const GfxDevice d) {
+    const u32 i = idxOf(d);
+    if (i >= kMaxDevices || gDev[i].dev == VK_NULL_HANDLE || gDevGen[i] != genOf(d)) return nullptr;
+    return &gDev[i];
+}
+
+// --- binding pool ---
+struct BindingData { VkSurfaceKHR surface; };
+BindingData gBind   [kMaxBindings] = {};
+u16         gBindGen[kMaxBindings] = {};
+
+BindingData* resolveBinding(const GfxBinding b) {
+    const u32 i = idxOf(b);
+    if (i >= kMaxBindings || gBind[i].surface == VK_NULL_HANDLE || gBindGen[i] != genOf(b)) return nullptr;
+    return &gBind[i];
+}
+
+// --- fence pool ---
+struct FenceData { VkDevice dev; VkFence fence; };
+FenceData gFence [kMaxFences] = {};
+u16        gFenceGen[kMaxFences] = {};
+
+FenceData* resolveFence(const GfxFence f) {
+    const u32 i = idxOf(f);
+    if (i >= kMaxFences || gFence[i].fence == VK_NULL_HANDLE || gFenceGen[i] != genOf(f)) return nullptr;
+    return &gFence[i];
+}
 
 bool vkInit(const bool bValidation, const AllocationCallbacks* alloc) {
     (void)bValidation; (void)alloc;
@@ -88,6 +130,7 @@ void vkBindingDestroy(GfxBinding) {
 }
 
 GfxFence vkFenceCreate(GfxDevice, bool bSignaled) {
+    (void)bSignaled;
     return {};
 }
 
