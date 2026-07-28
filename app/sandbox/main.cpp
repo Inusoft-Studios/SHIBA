@@ -53,6 +53,7 @@ int main(int, char**) {
 
     if (!shiba::gfxInit(shiba::GfxApi::Vulkan, SHIBA_DEBUG, &alloc)) {
         printf("gfx init failed\n");
+        shiba::surfaceDestroy(window);
         return -1;
     }
 
