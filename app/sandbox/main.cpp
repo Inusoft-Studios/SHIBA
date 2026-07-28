@@ -1,4 +1,5 @@
 #include <platform/allocator.h>
+#include <platform/compiler.h>
 #include <platform/gfx.h>
 #include <platform/surface.h>
 #include <platform/timer.h>
@@ -47,7 +48,7 @@ int main(int, char**) {
     desc.extent     = { 1280, 720 };
     desc.bResizable = true;
 
-    if (!shiba::gfxInit(shiba::GfxApi::Vulkan, true, &alloc)) {
+    if (!shiba::gfxInit(shiba::GfxApi::Vulkan, SHIBA_DEBUG, &alloc)) {
         printf("gfx init failed\n");
         return -1;
     }
