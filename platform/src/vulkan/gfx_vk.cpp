@@ -36,5 +36,85 @@ VkPhysicalDevice gPhys    [kMaxAdapters] = {};
 char             gPhysName[kMaxAdapters][kNameCap] = {};
 u32              gPhysCount = 0;
 
+// handle <-> slot
+template<class H> H packH(const u32 i, const u16 g) { return H{ (static_cast<u32>(g) << 16) | i }; }
+template<class H> u32 idxOf(const H h) { return h.id & 0xFFFF; }
+template<class H> u16 genOf(const H h) { return static_cast<u16>(h.id >> 16); }
+
+bool vkInit(const bool bValidation, const AllocationCallbacks* alloc) {
+    (void)bValidation; (void)alloc;
+    return true;
+}
+
+void vkShutdown() {
+
+}
+
+u32 vkEnumerateAdapters(GfxAdapter* pOut, u32 cap) {
+    (void)pOut; (void)cap;
+    return 0;
+}
+
+GfxAdapter vkDefaultAdapter() {
+    return {};
+}
+
+const char* vkAdapterName(GfxAdapter) {
+    return "";
+}
+
+GfxDevice vkDeviceCreate(GfxAdapter, const AllocationCallbacks*) {
+    return {};
+}
+
+void vkDeviceDestroy(GfxDevice) {
+
+}
+
+void vkDeviceWait(GfxDevice) {
+
+}
+
+GfxQueue vkDeviceQueue(GfxDevice, GfxQueueKind) {
+    return {};
+}
+
+GfxBinding vkBindingCreate(GfxDevice, Surface, const AllocationCallbacks*) {
+    return {};
+}
+
+void vkBindingDestroy(GfxBinding) {
+
+}
+
+GfxFence vkFenceCreate(GfxDevice, bool bSignaled) {
+    return {};
+}
+
+void vkFenceDestroy(GfxFence) {
+
+}
+
+void vkFenceWait(GfxFence) {
+
+}
+
+void vkFenceReset(GfxFence) {
+
+}
+
 }  // namespace
+
+const GfxBackendApi* gfxVkApi() {
+    static constexpr GfxBackendApi kApi = {
+        vkInit,               vkShutdown,
+        vkEnumerateAdapters,  vkDefaultAdapter,   vkAdapterName,
+        vkDeviceCreate,       vkDeviceDestroy,    vkDeviceWait,
+        vkDeviceQueue,
+        vkBindingCreate,      vkBindingDestroy,
+        vkFenceCreate,        vkFenceDestroy,     vkFenceWait,   vkFenceReset,
+    };
+    return &kApi;
+}
+
 }  // namespace shiba
