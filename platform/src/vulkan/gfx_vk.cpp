@@ -22,7 +22,6 @@ SHIBA_WARN_POP()
 
 namespace shiba {
 namespace {
-
 constexpr u32 kMaxAdapters = 8;
 constexpr u32 kMaxDevices  = 4;
 constexpr u32 kMaxBindings = 8;
@@ -312,14 +311,39 @@ GfxQueue vkDeviceQueue(const GfxDevice device, const GfxQueueKind kind) {
 }
 
 // --- OS-drawable binding ---
-GfxBinding vkBindingCreate(GfxDevice, Surface, const AllocationCallbacks*) {
-    return {};
+GfxBinding vkBindingCreate(const GfxDevice, const Surface surface, const AllocationCallbacks*) {
+    // VkSurfaceKHR is instance-level, device is unused here.
+    u32 slot = kMaxBindings;
+    for (u32 i = 0; i < kMaxBindings; ++i) if (gBind[i].surface == VK_NULL_HANDLE) { slot = i; break; }
+    if (slot == kMaxBindings) return GfxBinding{};
+    if (gBindGen[slot] == 0) gBindGen[slot] = 1;
+
+    VkSurfaceKHR vkSurf = VK_NULL_HANDLE;
+#ifdef _WIN32
+    VkWin32SurfaceCreateInfoKHR ci{};
+    ci.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+    ci.hinstance = GetModuleHandleW(nullptr);
+    ci.hwnd = static_cast<HWND>(surfaceGetNativeHandle(surface));
+    if (vkCreateWin32SurfaceKHR(gInstance, &ci, nullptr, &vkSurf) != VK_SUCCESS) return GfxBinding{};
+#else
+    // TODO: Linux KHR surface initialization
+    (void)surface;
+    return GfxBinding;
+#endif
+    gBind[slot].surface = vkSurf;
+    return packH<GfxBinding>(slot, gBindGen[slot]);
 }
 
-void vkBindingDestroy(GfxBinding) {
-
+void vkBindingDestroy(const GfxBinding binding) {
+    BindingData* b = resolveBinding(binding);
+    if (!b) return;
+    const u32 slot = idxOf(binding);
+    vkDestroySurfaceKHR(gInstance, b->surface, nullptr);
+    b->surface = VK_NULL_HANDLE;
+    if (++gBindGen[slot] == 0) gBindGen[slot] = 1;
 }
 
+// --- Sync ---
 GfxFence vkFenceCreate(GfxDevice, bool bSignaled) {
     (void)bSignaled;
     return {};
