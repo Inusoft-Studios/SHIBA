@@ -306,7 +306,7 @@ GfxQueue vkDeviceQueue(const GfxDevice device, const GfxQueueKind kind) {
     // pack device slot + generation + kind so a later submit path can resolve back to the stored
     // VkQueue without a separate queue pool.
     return GfxQueue{ (static_cast<u32>(genOf(device)) << 16) |
-                     (static_cast<u32>(kind) << 8) |
+                     (qk(kind) << 8) |
                      idxOf(device)
     };
 }
