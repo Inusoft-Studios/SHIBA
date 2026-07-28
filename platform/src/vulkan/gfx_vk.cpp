@@ -300,10 +300,18 @@ void vkDeviceWait(const GfxDevice device) {
     if (const DeviceData* d = resolveDevice(device)) vkDeviceWaitIdle(d->dev);
 }
 
-GfxQueue vkDeviceQueue(GfxDevice, GfxQueueKind) {
-    return {};
+// --- Queues ---
+GfxQueue vkDeviceQueue(const GfxDevice device, const GfxQueueKind kind) {
+    if (!resolveDevice(device)) return GfxQueue{};
+    // pack device slot + generation + kind so a later submit path can resolve back to the stored
+    // VkQueue without a separate queue pool.
+    return GfxQueue{ (static_cast<u32>(genOf(device)) << 16) |
+                     (static_cast<u32>(kind) << 8) |
+                     idxOf(device)
+    };
 }
 
+// --- OS-drawable binding ---
 GfxBinding vkBindingCreate(GfxDevice, Surface, const AllocationCallbacks*) {
     return {};
 }
