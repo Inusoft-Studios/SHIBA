@@ -46,7 +46,6 @@ if(SHIBA_GFX_BACKEND STREQUAL "Vulkan")
     )
     target_link_libraries(shiba_platform PRIVATE shiba::vma Vulkan::Vulkan)
     target_compile_definitions(shiba_platform PRIVATE SHIBA_GFX_VULKAN=1)
-    message(STATUS "shiba: selected rendering api = vulkan")
 endif()
 
 set_target_properties(shiba_platform PROPERTIES FOLDER "engine")
