@@ -274,6 +274,7 @@ GfxDevice vkDeviceCreate(const GfxAdapter adapter, const AllocationCallbacks* al
     d.family[qk(GfxQueueKind::Graphics)] = gfxF;
     d.family[qk(GfxQueueKind::Compute)]  = compF;
     d.family[qk(GfxQueueKind::Copy)]     = copyF;
+    for (u32 k = 0; k < 3; ++k) vkGetDeviceQueue(dev, d.family[k], 0, &d.queue[k]);
 
     VmaAllocatorCreateInfo aci{};
     aci.instance         = gInstance;
