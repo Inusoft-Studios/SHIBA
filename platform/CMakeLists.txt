@@ -12,6 +12,7 @@ target_sources(shiba_platform PRIVATE
         src/common.cpp
         src/gfx.cpp
         src/timer.cpp
+        src/version.cpp
 )
 
 # Per-OS backend selection
@@ -24,6 +25,14 @@ endif ()
 
 target_link_libraries(shiba_platform PUBLIC shiba::warns)
 shiba_enable_ipo(shiba_platform)
+
+# Engine versioning within platform
+target_compile_definitions(shiba_platform PRIVATE
+        SHIBA_VERSION=${PROJECT_VERSION}
+        SHIBA_VERSION_MAJOR=${PROJECT_VERSION_MAJOR}
+        SHIBA_VERSION_MINOR=${PROJECT_VERSION_MINOR}
+        SHIBA_VERSION_PATCH=${PROJECT_VERSION_PATCH}
+)
 
 # TODO: Setup per-backend module linking
 set(SHIBA_GFX_BACKEND "Vulkan" CACHE STRING "Graphics backend")
