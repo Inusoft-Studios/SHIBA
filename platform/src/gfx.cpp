@@ -13,7 +13,6 @@ GfxApi               gActive = GfxApi::Null;
 const GfxBackendApi* select(const GfxApi api) {
     switch (api) {
         case GfxApi::Vulkan: return gfxVkApi();
-        // case GfxApi::Null:   return gfxNullApi();
         default: return nullptr;
     }
 }

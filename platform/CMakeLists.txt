@@ -36,7 +36,7 @@ target_compile_definitions(shiba_platform PRIVATE
 
 # TODO: Setup per-backend module linking
 set(SHIBA_GFX_BACKEND "Vulkan" CACHE STRING "Graphics backend")
-set_property(CACHE SHIBA_GFX_BACKEND PROPERTY STRINGS Vulkan D3D12 OpenGL Null)
+set_property(CACHE SHIBA_GFX_BACKEND PROPERTY STRINGS Vulkan D3D12 OpenGL)
 
 if(SHIBA_GFX_BACKEND STREQUAL "Vulkan")
     find_package(Vulkan 1.4.350 REQUIRED)
