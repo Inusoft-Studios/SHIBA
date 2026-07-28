@@ -2,6 +2,7 @@
 #include "surface_native.h"
 #include "platform/allocator.h"
 #include "platform/compiler.h"
+#include "platform/version.h"
 
 // TODO: Other OS-backends
 #ifdef _WIN32
@@ -12,6 +13,7 @@
     #define VK_USE_PLATFORM_WIN32_KHR
 #endif
 #include <vulkan/vulkan.h>
+
 SHIBA_WARN_PUSH_DISABLE_ALL()
 #include "vk_mem_alloc.h"
 SHIBA_WARN_POP()
@@ -103,7 +105,7 @@ bool vkInit(const bool bValidation, const AllocationCallbacks* alloc) {
     VkApplicationInfo app{};
     app.sType         = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     app.pEngineName   = "SHIBA";
-    app.engineVersion = VK_MAKE_VERSION(0, 1, 0);   // TODO: replace with version calls
+    app.engineVersion = VK_MAKE_VERSION(versionMajor(), versionMinor(), versionPatch());
     app.apiVersion    = VK_API_VERSION_1_3;
 
     const char* exts[8]; u32 extCount = 0;
