@@ -41,11 +41,11 @@ char             gPhysName[kMaxAdapters][kNameCap] = {};
 u32              gPhysCount = 0;
 
 // handle <-> slot
-template<class H> [[maybe_unused]] H packH(const u32 i, const u16 g) { return H{ (static_cast<u32>(g) << 16) | i }; }
-template<class H> [[maybe_unused]] u32 idxOf(const H h) { return h.id & 0xFFFF; }
-template<class H> [[maybe_unused]] u16 genOf(const H h) { return static_cast<u16>(h.id >> 16); }
+template<class H> H packH(const u32 i, const u16 g) { return H{ (static_cast<u32>(g) << 16) | i }; }
+template<class H> u32 idxOf(const H h) { return h.id & 0xFFFF; }
+template<class H> u16 genOf(const H h) { return static_cast<u16>(h.id >> 16); }
 
-[[maybe_unused]] u8 qk(const GfxQueueKind k) { return static_cast<u8>(k); }
+u8 qk(const GfxQueueKind k) { return static_cast<u8>(k); }
 
 // --- device pool ---
 struct DeviceData {
@@ -58,7 +58,7 @@ struct DeviceData {
 DeviceData gDev   [kMaxDevices] = {};
 u16        gDevGen[kMaxDevices] = {};
 
-[[maybe_unused]] DeviceData* resolveDevice(const GfxDevice d) {
+DeviceData* resolveDevice(const GfxDevice d) {
     const u32 i = idxOf(d);
     if (i >= kMaxDevices || gDev[i].dev == VK_NULL_HANDLE || gDevGen[i] != genOf(d)) return nullptr;
     return &gDev[i];
@@ -69,7 +69,7 @@ struct BindingData { VkSurfaceKHR surface; };
 BindingData gBind   [kMaxBindings] = {};
 u16         gBindGen[kMaxBindings] = {};
 
-[[maybe_unused]] BindingData* resolveBinding(const GfxBinding b) {
+BindingData* resolveBinding(const GfxBinding b) {
     const u32 i = idxOf(b);
     if (i >= kMaxBindings || gBind[i].surface == VK_NULL_HANDLE || gBindGen[i] != genOf(b)) return nullptr;
     return &gBind[i];
@@ -344,21 +344,42 @@ void vkBindingDestroy(const GfxBinding binding) {
 }
 
 // --- Sync ---
-GfxFence vkFenceCreate(GfxDevice, bool bSignaled) {
-    (void)bSignaled;
-    return {};
+GfxFence vkFenceCreate(const GfxDevice device, const bool bSignaled) {
+    DeviceData* d = resolveDevice(device);
+    if (!d) return GfxFence{};
+
+    u32 slot = kMaxFences;
+    for (u32 i = 0; i < kMaxFences; ++i) if (gFence[i].fence == VK_NULL_HANDLE) { slot = i; break; }
+    if (slot == kMaxFences) return GfxFence{};
+    if (gFenceGen[slot] == 0) gFenceGen[slot] = 1;
+
+    VkFenceCreateInfo fi{};
+    fi.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fi.flags = bSignaled ? VK_FENCE_CREATE_SIGNALED_BIT : 0;
+    VkFence f = VK_NULL_HANDLE;
+    if (vkCreateFence(d->dev, &fi, nullptr, &f) != VK_SUCCESS) return GfxFence{};
+
+    gFence[slot] = { d->dev, f };
+    return packH<GfxFence>(slot, gFenceGen[slot]);
 }
 
-void vkFenceDestroy(GfxFence) {
-
+void vkFenceDestroy(const GfxFence fence) {
+    FenceData* fd = resolveFence(fence);
+    if (!fd) return;
+    const u32 slot = idxOf(fence);
+    vkDestroyFence(fd->dev, fd->fence, nullptr);
+    *fd = FenceData{};
+    if (++gFenceGen[slot] == 0) gFenceGen[slot] = 1;
 }
 
-void vkFenceWait(GfxFence) {
-
+void vkFenceWait(const GfxFence fence) {
+    const FenceData* fd = resolveFence(fence);
+    if (fd) vkWaitForFences(fd->dev, 1, &fd->fence, VK_TRUE, UINT64_MAX);
 }
 
-void vkFenceReset(GfxFence) {
-
+void vkFenceReset(const GfxFence fence) {
+    const FenceData* fd = resolveFence(fence);
+    if (fd) vkResetFences(fd->dev, 1, &fd->fence);
 }
 
 }  // namespace
