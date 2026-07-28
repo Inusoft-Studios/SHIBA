@@ -185,7 +185,7 @@ GfxAdapter vkDefaultAdapter() {
 
     // TODO: properly score GPU
     u32 best = 0;
-    for (u32 i = 1; i < gPhysCount; ++i) {
+    for (u32 i = 0; i < gPhysCount; ++i) {
         VkPhysicalDeviceProperties p{};
         vkGetPhysicalDeviceProperties(gPhys[i], &p);
         if (p.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
@@ -329,7 +329,7 @@ GfxBinding vkBindingCreate(const GfxDevice, const Surface surface, const Allocat
 #else
     // TODO: Linux KHR surface initialization
     (void)surface;
-    return GfxBinding;
+    return GfxBinding{};
 #endif
     gBind[slot].surface = vkSurf;
     return packH<GfxBinding>(slot, gBindGen[slot]);
