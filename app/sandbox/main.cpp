@@ -48,13 +48,20 @@ int main(int, char**) {
     desc.extent     = { 1280, 720 };
     desc.bResizable = true;
 
+    const shiba::Surface window = shiba::surfaceCreate(desc, &alloc);
+    if (!shiba::surfaceValid(window)) { printf("surface creation failed\n"); return -1; }
+
     if (!shiba::gfxInit(shiba::GfxApi::Vulkan, SHIBA_DEBUG, &alloc)) {
         printf("gfx init failed\n");
         return -1;
     }
 
-    const shiba::Surface window = shiba::surfaceCreate(desc, &alloc);
-    if (!shiba::surfaceValid(window)) { printf("surface creation failed\n"); return -1; }
+    shiba::GfxAdapter adapters[8];
+    const shiba::u32 n = shiba::gfxEnumerateAdapters(adapters, 8);
+    printf("[gfx] %u adapter(s):\n", n);
+    for (shiba::u32 i = 0; i < n && i < 8; ++i)
+        printf("  [%u] %s\n", i, shiba::gfxAdapterName(adapters[i]));
+    printf("[gfx] picked adapter: '%s'\n", shiba::gfxAdapterName(shiba::gfxDefaultAdapter()));
 
     constexpr shiba::f64 kFixedDT = 1.0 / 60.0; // 60Hz sim
     constexpr shiba::f64 kMaxDt   = 0.25;       // clamp: anti "spiral of death"
