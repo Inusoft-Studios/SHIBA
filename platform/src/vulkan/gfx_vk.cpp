@@ -80,7 +80,7 @@ struct FenceData { VkDevice dev; VkFence fence; };
 FenceData gFence [kMaxFences] = {};
 u16        gFenceGen[kMaxFences] = {};
 
-[[maybe_unused]] FenceData* resolveFence(const GfxFence f) {
+FenceData* resolveFence(const GfxFence f) {
     const u32 i = idxOf(f);
     if (i >= kMaxFences || gFence[i].fence == VK_NULL_HANDLE || gFenceGen[i] != genOf(f)) return nullptr;
     return &gFence[i];
