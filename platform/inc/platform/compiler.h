@@ -27,6 +27,13 @@
     #define SHIBA_COMPILER_GCC 0
 #endif
 
+// Configuration detection
+#if NDEBUG
+    #define SHIBA_DEBUG 0
+#else
+    #define SHIBA_DEBUG 1
+#endif
+
 // === Inlining ===
 #if SHIBA_COMPILER_MSVC
     #define SHIBA_FORCE_INLINE __forceinline
