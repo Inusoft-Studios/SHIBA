@@ -9,6 +9,9 @@
 
 namespace shiba {
 
+using PfnInit              = bool (*)(bool, const AllocationCallbacks*);
+using PfnShutdown          = void (*)();
+
 using PfnEnumerateAdapters = u32        (*)(GfxAdapter* out, u32 cap);
 using PfnDefaultAdapter    = GfxAdapter (*)();
 using PfnAdapterName       = const char*(*)(GfxAdapter);
@@ -28,31 +31,31 @@ using PfnFenceReset        = void       (*)(GfxFence);
 
 struct GfxBackendApi {
     // --- Lifetime ---
-    bool (*init)(bool bValidation, const AllocationCallbacks*);
-    void (*shutdown)();
+    PfnInit              init{};
+    PfnShutdown          shutdown{};
 
     // --- Adapters ---
-    PfnEnumerateAdapters enumerateAdapters;
-    PfnDefaultAdapter    defaultAdapter;
-    PfnAdapterName       adapterName;
+    PfnEnumerateAdapters enumerateAdapters{};
+    PfnDefaultAdapter    defaultAdapter{};
+    PfnAdapterName       adapterName{};
 
     // --- Device ---
-    PfnDeviceCreate      deviceCreate;
-    PfnDeviceDestroy     deviceDestroy;
-    PfnDeviceWait        deviceWait;
+    PfnDeviceCreate      deviceCreate{};
+    PfnDeviceDestroy     deviceDestroy{};
+    PfnDeviceWait        deviceWait{};
 
     // --- Queues ---
-    PfnDeviceQueue       deviceQueue;
+    PfnDeviceQueue       deviceQueue{};
 
     // --- OS drawable binding ---
-    PfnBindingCreate     bindingCreate;
-    PfnBindingDestroy    bindingDestroy;
+    PfnBindingCreate     bindingCreate{};
+    PfnBindingDestroy    bindingDestroy{};
 
     // --- Sync ---
-    PfnFenceCreate       fenceCreate;
-    PfnFenceDestroy      fenceDestroy;
-    PfnFenceWait         fenceWait;
-    PfnFenceReset        fenceReset;
+    PfnFenceCreate       fenceCreate{};
+    PfnFenceDestroy      fenceDestroy{};
+    PfnFenceWait         fenceWait{};
+    PfnFenceReset        fenceReset{};
 };
 
 const GfxBackendApi* gfxVkApi();
