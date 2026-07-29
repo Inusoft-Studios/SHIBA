@@ -205,7 +205,7 @@ Surface surfaceCreate(const SurfaceDesc& desc, const AllocationCallbacks* alloc)
     if (!s->hwnd) {
         gTable[slot] = nullptr;
         s->~SurfaceData();
-        alloc->pFnFree(alloc->pUser, mem);
+        alloc->pFnFree(alloc->pUser, mem, sizeof(SurfaceData), alignof(SurfaceData));
         return Surface{};
     }
     ShowWindow(s->hwnd, SW_SHOW);
@@ -220,7 +220,7 @@ void surfaceDestroy(const Surface surface) {
     if (s->hwnd) DestroyWindow(s->hwnd);
     const AllocationCallbacks a = s->alloc;
     s->~SurfaceData();
-    a.pFnFree(a.pUser, s);
+    a.pFnFree(a.pUser, s, sizeof(SurfaceData), alignof(SurfaceData));
     gTable[slot] = nullptr;
     if (++gGen[slot] == 0) gGen[slot] = 1;
 }
