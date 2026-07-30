@@ -7,7 +7,6 @@
 
 #include <type_traits>
 
-#include "platform/cache_line.h"
 #include "platform/types.h"
 
 namespace shiba {
