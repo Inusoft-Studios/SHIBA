@@ -13,16 +13,18 @@ struct AllocationCallbacks {
     void* pUser;
 };
 
-inline void* alloc(const usize size, const usize align, const AllocationCallbacks* alloc) {
-    return alloc->pFnAlloc(alloc->pUser, size, align);
+inline void* allocate(const AllocationCallbacks* a, const usize size, const usize align) {
+    return a->pFnAlloc(a->pUser, size, align);
 }
 
-inline void free(void* ptr, const usize size, const usize align, const AllocationCallbacks* alloc) {
-    alloc->pFnFree(alloc->pUser, ptr, size, align);
+inline void deallocate(const AllocationCallbacks* a, void* ptr, const usize size, const usize align) {
+    a->pFnFree(a->pUser, ptr, size, align);
 }
 
-inline usize alignUp(const usize v, const usize a) { return (v + a - 1) & ~(a - 1); }
-inline usize maxAlign(const usize a, const usize b) { return a > b ? a : b; }
+// Rounds value up to a power-of-two alignment.
+inline usize alignUp(const usize value, const usize align) {
+    return (value + align - 1u) & ~(align - 1u);
+}
 
 }  // namespace shiba
 
