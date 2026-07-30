@@ -24,39 +24,61 @@ struct FixedArray {
     static_assert(std::is_trivially_copyable_v<T>,
                   "FixedArray stores T inline and copies by assignment; "
                   "use the method-based container for non-trivial T");
+
     T items[Capacity];
     FixedArraySizeType<Capacity> count;
 };
 
-template<typename T, usize Capacity>
-constexpr usize faCapacity(const FixedArray<T, Capacity>*) { return Capacity; }
+// --- Queries ---
 
 template<typename T, usize Capacity>
-inline usize faSize(const FixedArray<T, Capacity>* a) { return a->count; }
+constexpr usize fixedArrayCapacity(const FixedArray<T, Capacity>*) { return Capacity; }
 
 template<typename T, usize Capacity>
-inline bool faEmpty(const FixedArray<T, Capacity>* a) { return a->count == 0u; }
+inline usize fixedArraySize(const FixedArray<T, Capacity>* a) { return a->count; }
 
 template<typename T, usize Capacity>
-inline bool faFull(const FixedArray<T, Capacity>* a) { return a->count >= Capacity; }
+inline bool fixedArrayEmpty(const FixedArray<T, Capacity>* a) { return a->count == 0u; }
 
 template<typename T, usize Capacity>
-inline T* faData(FixedArray<T, Capacity>* a) { return a->items; }
+inline bool fixedArrayFull(const FixedArray<T, Capacity>* a) { return a->count >= Capacity; }
+
+// --- Access ---
 
 template<typename T, usize Capacity>
-inline T* faAt(FixedArray<T, Capacity>* a, const usize i) { return &a->items[i]; }
+inline T* fixedArrayData(FixedArray<T, Capacity>* a) { return a->items; }
+template<typename T, usize Capacity>
+inline const T* fixedArrayData(const FixedArray<T, Capacity>* a) { return a->items; }
 
 template<typename T, usize Capacity>
-inline T* faBack(FixedArray<T, Capacity>* a) { return &a->items[a->count - 1u]; }
+inline T* fixedArrayAt(FixedArray<T, Capacity>* a, const usize i) { return &a->items[i]; }
+template<typename T, usize Capacity>
+inline const T* fixedArrayAt(const FixedArray<T, Capacity>* a, const usize i) { return &a->items[i]; }
 
 template<typename T, usize Capacity>
-inline T* faBegin(FixedArray<T, Capacity>* a) { return a->items; }
+inline T* fixedArrayFront(FixedArray<T, Capacity>* a) { return &a->items[0]; }
+template<typename T, usize Capacity>
+inline const T* fixedArrayFront(const FixedArray<T, Capacity>* a) { return &a->items[0]; }
 
 template<typename T, usize Capacity>
-inline T* faEnd(FixedArray<T, Capacity>* a) { return a->items + a->count; }
+inline T* fixedArrayBack(FixedArray<T, Capacity>* a) { return &a->items[a->count - 1u]; }
+template<typename T, usize Capacity>
+inline const T* fixedArrayBack(const FixedArray<T, Capacity>* a) { return &a->items[a->count - 1u]; }
 
 template<typename T, usize Capacity>
-inline T* faPush(FixedArray<T, Capacity>* a, const TypeIdentity_t<T>& v) {
+inline T* fixedArrayBegin(FixedArray<T, Capacity>* a) { return a->items; }
+template<typename T, usize Capacity>
+inline const T* fixedArrayBegin(const FixedArray<T, Capacity>* a) { return a->items; }
+
+template<typename T, usize Capacity>
+inline T* fixedArrayEnd(FixedArray<T, Capacity>* a) { return a->items + a->count; }
+template<typename T, usize Capacity>
+inline const T* fixedArrayEnd(const FixedArray<T, Capacity>* a) { return a->items + a->count; }
+
+// --- Mutation ---
+
+template<typename T, usize Capacity>
+inline T* fixedArrayPush(FixedArray<T, Capacity>* a, const TypeIdentity_t<T>& v) {
     if (a->count >= Capacity)
         return nullptr;
 
@@ -67,14 +89,14 @@ inline T* faPush(FixedArray<T, Capacity>* a, const TypeIdentity_t<T>& v) {
 }
 
 template<typename T, usize Capacity>
-inline void faPop(FixedArray<T, Capacity>* a) {
-    if (faEmpty(a))
+inline void fixedArrayPop(FixedArray<T, Capacity>* a) {
+    if (fixedArrayEmpty(a))
         return;
     --a->count;
 }
 
 template<typename T, usize Capacity>
-inline void faClear(FixedArray<T, Capacity>* a) { a->count = 0u; }
+inline void fixedArrayClear(FixedArray<T, Capacity>* a) { a->count = 0u; }
 
 }  // namespace shiba
 
