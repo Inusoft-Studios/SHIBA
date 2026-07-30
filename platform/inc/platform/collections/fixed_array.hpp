@@ -21,9 +21,9 @@ using FixedArraySizeType = std::conditional_t<
 
 template<typename T, usize Capacity>
 struct FixedArray {
-    static_assert(Capacity > 0, "FixedArray requires a non-zero capacity");
+    static_assert(Capacity > 0, "shiba: FixedArray requires a non-zero capacity");
     static_assert(std::is_trivially_copyable_v<T>,
-                  "FixedArray stores T inline and copies by assignment; "
+                  "shiba: FixedArray stores T inline and copies by assignment; "
                   "use the method-based container for non-trivial T");
 
     T items[Capacity];
