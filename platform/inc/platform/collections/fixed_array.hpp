@@ -7,8 +7,9 @@
 
 #include <type_traits>
 
-#include "platform/types.h"
 #include "platform/generics/type_identity.hpp"
+#include "platform/types.h"
+#include "span.hpp"
 
 namespace shiba {
 
@@ -97,6 +98,18 @@ inline void fixedArrayPop(FixedArray<T, Capacity>* a) {
 
 template<typename T, usize Capacity>
 inline void fixedArrayClear(FixedArray<T, Capacity>* a) { a->count = 0u; }
+
+// --- Views ---
+
+template<typename T, usize Capacity>
+inline Span<T> fixedArrayAsSpan(FixedArray<T, Capacity>* a) { return Span<T>{
+    a->items, a->count };
+}
+
+template<typename T, usize Capacity>
+inline Span<const T> fixedArrayAsSpan(const FixedArray<T, Capacity>* a) {
+    return Span<const T>{ a->items, a->count };
+}
 
 }  // namespace shiba
 
