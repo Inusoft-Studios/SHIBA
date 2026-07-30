@@ -55,6 +55,27 @@ inline T* faBegin(FixedArray<T, Capacity>* a) { return a->items; }
 template<typename T, usize Capacity>
 inline T* faEnd(FixedArray<T, Capacity>* a) { return a->items + a->count; }
 
+template<typename T, usize Capacity>
+inline T* faPush(FixedArray<T, Capacity>* a, const T& v) {
+    if (a->count >= Capacity)
+        return nullptr;
+
+    T* slot = &a->items[a->count];
+    *slot = v;
+    ++a->count;
+    return slot;
+}
+
+template<typename T, usize Capacity>
+inline void faPop(FixedArray<T, Capacity>* a) {
+    if (faEmpty(a))
+        return;
+    --a->count;
+}
+
+template<typename T, usize Capacity>
+inline void faClear(FixedArray<T, Capacity>* a) { a->count = 0u; }
+
 }  // namespace shiba
 
 #endif  // SHIBA_PLATFORM_COLLECTIONS_FIXED_ARRAY_HPP_
