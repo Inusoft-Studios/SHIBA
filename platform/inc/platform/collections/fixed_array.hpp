@@ -8,6 +8,7 @@
 #include <type_traits>
 
 #include "platform/types.h"
+#include "platform/generics/type_identity.hpp"
 
 namespace shiba {
 
@@ -55,7 +56,7 @@ template<typename T, usize Capacity>
 inline T* faEnd(FixedArray<T, Capacity>* a) { return a->items + a->count; }
 
 template<typename T, usize Capacity>
-inline T* faPush(FixedArray<T, Capacity>* a, const T& v) {
+inline T* faPush(FixedArray<T, Capacity>* a, const TypeIdentity_t<T>& v) {
     if (a->count >= Capacity)
         return nullptr;
 
