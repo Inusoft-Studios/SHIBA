@@ -102,8 +102,8 @@ inline void fixedArrayClear(FixedArray<T, Capacity>* a) { a->count = 0u; }
 // --- Views ---
 
 template<typename T, usize Capacity>
-inline Span<T> fixedArrayAsSpan(FixedArray<T, Capacity>* a) { return Span<T>{
-    a->items, a->count };
+inline Span<T> fixedArrayAsSpan(FixedArray<T, Capacity>* a) {
+    return Span<T>{ a->items, a->count };
 }
 
 template<typename T, usize Capacity>
