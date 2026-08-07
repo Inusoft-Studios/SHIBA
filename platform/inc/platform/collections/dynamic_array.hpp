@@ -72,7 +72,14 @@ inline bool dynamicArrayReserve(DynamicArray<T>* a, const usize n) {
 // Sets the logical size to n; grown slots are left uninitialized.
 template<typename T>
 inline bool dynamicArrayResize(DynamicArray<T>* a, const usize n) {
-    if (!dynamicArrayReserve(a, n)) return false;
+    if (n > a->size) {
+        if (!dynamicArrayReserve(a, n)) return false;
+        for (usize i = a->size; i < n; ++i)
+            new (static_cast<void*>(a->data + i)) T();  // value-init new slots
+    } else {
+        for (usize i = n; i < a->size; ++i)
+            a->data[i].~T();                            // destroy shrunk off tail
+    }
     a->size = n;
     return true;
 }
@@ -125,7 +132,7 @@ inline const T* dynamicArrayEnd(const DynamicArray<T>* a) { return a->data + a->
 template<typename T, typename... Args>
 inline T* dynamicArrayEmplace(DynamicArray<T>* a, Args&&... args) {
     if (a->size >= a->capacity) {
-        if (const usize next = a->capacity ? a->capacity * 2 : 1; !dynamicArrayReserve(a, next))
+        if (const usize next = a->capacity ? a->capacity * 2 : 8; !dynamicArrayReserve(a, next))
             return nullptr;
     }
     T* slot = a->data + a->size;
@@ -144,19 +151,29 @@ inline void dynamicArrayPop(DynamicArray<T>* a) {
     if (a->size == 0)
         return;
     --a->size;
+    a->data[a->size].~T();
 }
 
 // O(1), does not preserve order. Caller guarantees i < size.
 template<typename T>
 inline void dynamicArrayRemoveUnordered(DynamicArray<T>* a, const usize i) {
-    a->data[i] = a->data[a->size - 1];
+    const usize last = a->size - 1;
+    if (i != last)
+        a->data[i] = static_cast<T&&>(a->data[last]);
     --a->size;
+    a->size = last;
 }
 
 // O(n), preserves order. Caller guarantees i < size.
 template<typename T>
 inline void dynamicArrayRemove(DynamicArray<T>* a, const usize i) {
-    __builtin_memmove(&a->data[i], &a->data[i + 1], (a->size - i - 1) * sizeof(T));
+    if constexpr (std::is_trivially_copyable_v<T>) {
+        __builtin_memmove(&a->data[i], &a->data[i + 1], (a->size - i - 1) * sizeof(T));
+    } else {
+        for (usize j = i; j < a->size; ++j)
+            a->data[j] = static_cast<T&&>(a->data[j + 1]);  // shift tail down
+        a->data[a->size - 1].~T();                          // destroy stale last
+    }
     --a->size;
 }
 
@@ -164,10 +181,24 @@ inline void dynamicArrayRemove(DynamicArray<T>* a, const usize i) {
 // Caller guarantees i <= size.
 template<typename T>
 inline T* dynamicArrayInsert(DynamicArray<T>*a, const usize i, const TypeIdentity_t<T>& v) {
-    if (a->size >= a->capacity && !dynamicArrayReserve(a, a->size + 1))
-        return nullptr;
-    __builtin_memmove(&a->data[i + 1], &a->data[i], (a->size - i) * sizeof(T));
-    a->data[i] = v;
+    if (a->size >= a->capacity) {
+        const usize nc = a->capacity ? a->capacity * 2 : 8;
+        if (!dynamicArrayReserve(a, nc)) return nullptr;
+    }
+
+    if constexpr (std::is_trivially_copyable_v<T>) {
+        __builtin_memmove(&a->data[i + 1], &a->data[i], (a->size - i) * sizeof(T));
+        a->data[i] = v;
+    } else {
+        if (i == a->size)
+            new (static_cast<void*>(a->data + i)) T(v);         // append into raw slot
+        else {
+            new (static_cast<void*>(a->data + a->size)) T(static_cast<T&&>(a->data[a->size - 1]));
+            for (usize j = a->size - 1; j > i; --j)
+                a->data[j] = static_cast<T&&>(a->data[j - 1]);  // shift up
+            a->data[i] = v;                                     // overwrite live slot
+        }
+    }
     ++a->size;
     return &a->data[i];
 }
