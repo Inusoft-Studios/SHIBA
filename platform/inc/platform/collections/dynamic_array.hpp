@@ -10,6 +10,7 @@
 #include "platform/allocator.h"
 #include "platform/generics/type_identity.hpp"
 #include "platform/types.h"
+#include "span.hpp"
 
 namespace shiba {
 
@@ -209,6 +210,16 @@ inline void dynamicArrayClear(DynamicArray<T>* a) {
     if (data)
         for (usize i = 0; i < a->size; ++i) data[i].~T();   // delete old data
     a->size = 0;
+}
+
+template<typename T>
+inline Span<T> dynamicArrayAsSpan(DynamicArray<T>* a) {
+    return Span<T>{ a->data, a->size };
+}
+
+template<typename T>
+inline Span<const T> dynamicArrayAsSpan(const DynamicArray<T>* a) {
+    return Span<const T>{ a->data, a->size };
 }
 
 }  // namespace shiba
