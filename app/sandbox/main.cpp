@@ -46,9 +46,9 @@ int main(int, char**) {
 
     // Temp fixed array test
     shiba::FixedArray<shiba::u32, 8> arr{};
-    shiba::faPush(&arr, 1);
-    shiba::faPop(&arr);
-    shiba::faClear(&arr);
+    shiba::fixedArrayPush(&arr, 1);
+    shiba::fixedArrayPop(&arr);
+    shiba::fixedArrayClear(&arr);
 
     shiba::SurfaceDesc desc{};
     desc.pTitle     = "SHIBA Sandbox";
