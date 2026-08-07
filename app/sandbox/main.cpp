@@ -4,11 +4,9 @@
 #include <platform/surface.h>
 #include <platform/timer.h>
 #include <platform/types.h>
-#include <platform/collections/fixed_array.hpp>
 
 #include <cstdio>   // printf
 #include <cstdlib>  // _aligned_malloc / _aligned_free
-
 
 namespace {
 
@@ -43,12 +41,6 @@ struct FrameClock {
 
 int main(int, char**) {
     constexpr shiba::AllocationCallbacks alloc{ stdAlloc, stdFree, nullptr };
-
-    // Temp fixed array test
-    shiba::FixedArray<shiba::u32, 8> arr{};
-    shiba::fixedArrayPush(&arr, 1);
-    shiba::fixedArrayPop(&arr);
-    shiba::fixedArrayClear(&arr);
 
     shiba::SurfaceDesc desc{};
     desc.pTitle     = "SHIBA Sandbox";
