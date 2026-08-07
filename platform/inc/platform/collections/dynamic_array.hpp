@@ -30,7 +30,7 @@ inline void dynamicArrayInit(DynamicArray<T>* a, const AllocationCallbacks* allo
     a->data = nullptr;
     a->size = 0;
     a->capacity = 0;
-    a->alloc = allocation;
+    a->allocator = allocation;
 }
 
 template<typename T>
@@ -122,15 +122,21 @@ inline const T* dynamicArrayEnd(const DynamicArray<T>* a) { return a->data + a->
 
 // --- Mutation ---
 
-template<typename T>
-inline T* dynamicArrayPush(DynamicArray<T>* a, const TypeIdentity_t<T>& v) {
-    if (a->size >= a->capacity && !dynamicArrayReserve(a, a->size + 1))
-        return nullptr;
-
-    T* slot = &a->data[a->size];
-    *slot = v;
+template<typename T, typename... Args>
+inline T* dynamicArrayEmplace(DynamicArray<T>* a, Args&&... args) {
+    if (a->size >= a->capacity) {
+        if (const usize next = a->capacity ? a->capacity * 2 : 1; !dynamicArrayReserve(a, next))
+            return nullptr;
+    }
+    T* slot = a->data + a->size;
+    new (static_cast<void*>(slot)) T(static_cast<Args&&>(args)...);
     ++a->size;
     return slot;
+}
+
+template<typename T>
+inline T* dynamicArrayPush(DynamicArray<T>* a, const TypeIdentity_t<T>& v) {
+    return dynamicArrayEmplace(a, v);
 }
 
 template<typename T>
