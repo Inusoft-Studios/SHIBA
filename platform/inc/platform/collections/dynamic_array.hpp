@@ -6,6 +6,7 @@
 #define SHIBA_PLATFORM_COLLECTIONS_DYNAMIC_ARRAY_HPP_
 
 #include <type_traits>
+#include <new>  // placement new
 
 #include "platform/allocator.h"
 #include "platform/generics/type_identity.hpp"
