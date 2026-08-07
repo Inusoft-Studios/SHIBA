@@ -48,6 +48,7 @@ inline T* spanEnd(const Span<T> s) { return s.data + s.size; }
 template<typename T>
 inline Span<T> spanSubspan(const Span<T> s, const usize off, const usize n) {
     return Span<T>{ s.data + off, n };
+}
 
 }  // namespace shiba
 
